@@ -2,15 +2,16 @@
 #define GENERIC_H_IS_INCLUDED
 
 #include <vector>
+#include "fssimplewindow.h"
+#include "ysglfontdata.h"
 
 class Card;
 class Deck;
 
 class Card {
-private:
-	int suit, rank;
 public:
-
+	int suit, rank;
+	
 	Card();
 	Card(int s, int r);
 	void print() const;
@@ -20,13 +21,12 @@ public:
 	int getRank() const;
 	void setSuit(int);
 	void setRank(int);
+	void PrintCard(double cx1, double cy1);
 };
 
 class Deck {
-private:
-	std::vector<Card> cards;
 public:
-	
+	std::vector<Card> cards;
 
 	Deck(int n);
 	Deck();
