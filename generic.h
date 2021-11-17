@@ -2,6 +2,8 @@
 #define GENERIC_H_IS_INCLUDED
 
 #include <vector>
+#include "fssimplewindow.h"
+#include "ysglfontdata.h"
 
 // Includes all the common classes and member functions
 
@@ -12,17 +14,22 @@ class Card;
 class Deck;
 
 class Card {
+
 private:
 	int suit, rank;
 	std::vector<double> pos;
 	int indexForGraphics;
-public:
 
+
+public:
+	int suit, rank;
+	
 	Card();
 	Card(int s, int r);
 	void print() const;
 	bool isGreater(const Card& c2) const;
 	bool equals(const Card& c1) const;
+
 	int getSuit() const; // Helper function
 	int getRank() const; // Helper function
 	void setSuit(int); // Helper function
@@ -37,6 +44,17 @@ public:
 
 class Deck {
 private:
+=======
+	int getSuit() const;
+	int getRank() const;
+	void setSuit(int);
+	void setRank(int);
+	void PrintCard(double cx1, double cy1);
+};
+
+class Deck {
+public:
+
 	std::vector<Card> cards;
 
 public:
