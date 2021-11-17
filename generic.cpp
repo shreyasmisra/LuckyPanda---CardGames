@@ -5,18 +5,19 @@
 
 #include "generic.h"
 
-
 // Member functions for Card class 
 
 Card::Card() {
+	indexForGraphics = 0;
 	suit = 0;
 	rank = 0;
+	pos.push_back(0.); pos.push_back(0.);
 }
-
 Card::Card(int s, int r) {
+	indexForGraphics = 0;
 	suit = s; rank = r;
+	pos.push_back(0.); pos.push_back(0.);
 }
-
 void Card::print() const {
 	std::vector<std::string> suits(4);
 	std::vector<std::string> ranks(14);
@@ -42,9 +43,9 @@ void Card::print() const {
 
 	std::cout << ranks[rank] << "\t of \t" << suits[suit] << std::endl;
 }
-
 bool Card::isGreater(const Card& c2) const
 {
+	// compare current card with incoming card
 	if (suit > c2.suit) return true;
 	if (suit < c2.suit) return false;
 
@@ -55,30 +56,50 @@ bool Card::isGreater(const Card& c2) const
 	if (rank < c2.rank) return false;
 	return false;
 }
-
 bool Card::equals(const Card& c1) const 
 {
 	return (c1.rank == rank && c1.suit == suit);
 }
-
 int Card::getSuit() const
 {
+
 	return suit;
 }
-
 int Card::getRank() const
 {
 	return rank;
 }
-
 void Card::setSuit(int s)
 {
 	suit = s;
 }
-
 void Card::setRank(int r)
 {
 	rank = r;
+}
+std::vector<double> Card::getPos() const
+{
+	return pos;
+}
+void Card::setPos(const double x, const double y)
+{
+	pos[0] = x; pos[1] = y;
+}
+void Card::setPosX(const double x)
+{
+	pos[0] = x;
+}
+void Card::setPosY(const double y)
+{
+	pos[1] = y;
+}
+int Card::getGraphicsIndex() const
+{
+	return indexForGraphics;
+}
+void Card::setGraphicsIndex(const int val)
+{
+	indexForGraphics = val;
 }
 
 void Card::PrintCard(double cx1, double cy1)
@@ -120,7 +141,6 @@ Deck::Deck(int n)
 	std::vector<Card> temp(n);
 	cards = temp;
 }
-
 Deck::Deck() {
 	std::vector <Card> tmp(52);
 	cards = tmp;
@@ -133,6 +153,9 @@ Deck::Deck() {
 			i++;
 		}
 	}
+}
+void Deck::removecard(int p) {
+	getCards()[p].setRank(0);
 }
 void Deck::print() const {
 	for (int i = 0; i < cards.size(); i++) {
@@ -178,6 +201,12 @@ Card Deck::getRandomCard(const Deck& deck1, const Deck& deck2) const{
 	int randomInd = rand() % (getDeckSize() - ind) + ind;
 
 	Card randomCard = cards[randomInd];
+	return randomCard;
+}
+Card Deck::getRandomCard() const
+{
+	int randInd = rand() % 52;
+	Card randomCard = cards[randInd];
 	return randomCard;
 }
 int Deck::getDeckSize() const
