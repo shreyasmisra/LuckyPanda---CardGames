@@ -81,6 +81,38 @@ void Card::setRank(int r)
 	rank = r;
 }
 
+void Card::PrintCard(double cx1, double cy1)
+{
+	auto r = std::to_string(rank);
+
+	char const* rchar = r.c_str();
+
+	glColor3ub(255, 100, 100);
+	glRasterPos2i(cx1, cy1);
+	YsGlDrawFontBitmap10x14(rchar);
+	glRasterPos2i(cx1, cy1 + 20);
+	if (suit == 0)
+	{
+		char const* schar = "Clubs";
+		YsGlDrawFontBitmap10x14(schar);
+	}
+	else if (suit == 1)
+	{
+		char const* schar = "Diamonds";
+		YsGlDrawFontBitmap10x14(schar);
+	}
+	else if (suit == 2)
+	{
+		char const* schar = "Hearts";
+		YsGlDrawFontBitmap10x14(schar);
+	}
+	else if (suit == 3)
+	{
+		char const* schar = "Spades";
+		YsGlDrawFontBitmap10x14(schar);
+	}
+}
+
 // Member functions for Deck class.
 
 Deck::Deck(int n)
