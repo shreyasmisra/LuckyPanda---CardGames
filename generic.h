@@ -44,16 +44,6 @@ public:
 
 class Deck {
 private:
-=======
-	int getSuit() const;
-	int getRank() const;
-	void setSuit(int);
-	void setRank(int);
-	void PrintCard(double cx1, double cy1);
-};
-
-class Deck {
-public:
 
 	std::vector<Card> cards;
 
