@@ -6,11 +6,13 @@
 
 #include "generic.h"
 
-class PlayerHand;
-class DealerHand;
+// classes for blackjack
+
+class Player;
+class Dealer;
 class BlackJack;
 
-class DealerHand : public Deck {
+class Dealer : public Deck {
 private:
 	Deck hand;
 	int sum=0;
@@ -28,11 +30,13 @@ public:
 	void setSum(int);
 };
 
-class PlayerHand : public Deck {
+class Player : public Deck {
 private:
 	Deck hand;
 	int sum=0;
 	int move;
+	int bet;
+	int totalMoney = 1000;
 	std::string name;
 public:
 
@@ -45,6 +49,10 @@ public:
 	void setMove(std::istream&);
 	Deck getHand() const;
 	void addCard(const Card&);
+	void setBet(std::istream&);
+	void setRemMoney(const int);
+	int getBet() const;
+	int getRemMoney() const;
 };
 
 
@@ -57,8 +65,8 @@ private:
 	Card ace3;
 	Card ace4;
 	Deck mainDeck;
-	PlayerHand user;
-	DealerHand comp;
+	Player user;
+	Dealer comp;
 
 	bool gameOver = false;
 	int numHits = 0;
@@ -66,13 +74,17 @@ private:
 	std::string dealer_name = "Computer";
 	std::string player_name;
 
+	char userIn;
 public:
 
 	BlackJack();
 
+	void setHands();
 	int checkWinner() const;
 	void getUserInput() const;
 	void playBlackJack();
+	void playBlackJackMultipleTimes();
+	void DisplayOptions();
 };
 
 #endif
