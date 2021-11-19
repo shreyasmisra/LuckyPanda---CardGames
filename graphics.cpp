@@ -3,6 +3,7 @@
 #include <string>
 
 #include "graphics.h"
+
 #include "fssimplewindow.h"
 #include "yspng.h"
 #include "yspngenc.h"
@@ -83,7 +84,7 @@ void MainData::DecodeImages() {
 	this->getPNGPointer()[16].Decode("4S.png");
 	// rank = 5, all suits
 	this->getPNGPointer()[17].Decode("5C.png");
-	this->getPNGPointer()[17].Decode("5D.png");
+	this->getPNGPointer()[18].Decode("5D.png");
 	this->getPNGPointer()[19].Decode("5H.png");
 	this->getPNGPointer()[20].Decode("5S.png");
 	// rank = 6, all suits
@@ -206,7 +207,6 @@ void ColorBackGround()
 	glFlush();
 }
 
-
 void PrintCardSolitaire(const Card c, double cx1, double cy1)
 {
 	auto r = std::to_string(c.getRank());
@@ -239,19 +239,21 @@ void PrintCardSolitaire(const Card c, double cx1, double cy1)
 	}
 }
 
-//void SetIndexForGraphics(Card& card)
-//{
-// // To correspond the rank and suit to the indices in which the images are decoded. Line 56 -> graphics.cpp
-// // Will update soon
-// // Under work
-// 
-//	int r = card.getRank();
-//	int start_ind = 0 * std::pow(r,0) + 1.29352467e+00 * std::pow(r,1) + 1.56013800e+00,
-//		3.42561238e-01, -8.22833655e-01, 4.46845893e-01,
-//		-1.33165320e-01, 2.50205427e-02, -3.09091570e-03,
-//		2.51138004e-04, -1.29372905e-05, 3.83363400e-07,
-//		-4.97902763e-09
-//
-//}
+int getIndexForGraphics(const Card card)
+{
+ // To correspond the rank and suit to the indices in which the images are decoded. Line 56 -> graphics.cpp
+ 
+	int r = card.getRank();
+	int s = card.getSuit();
+	int start_ind = 0 * std::pow(r, 0) + 1.29352467e+00 * std::pow(r, 1) + 1.56013800e+00 * std::pow(r, 2) + 3.42561238e-01 * std::pow(r, 3) +
+		-8.22833655e-01 * std::pow(r, 4) + 4.46845893e-01 * std::pow(r, 5) + -1.33165320e-01 * std::pow(r, 6) + 2.50205427e-02 * std::pow(r, 7) +
+		-3.09091570e-03 * std::pow(r, 8) + 2.51138004e-04 * std::pow(r, 9) + -1.29372905e-05 * std::pow(r, 10) + 3.83363400e-07 * std::pow(r, 11) +
+		-4.97902763e-09 * std::pow(r, 12);
+
+
+	int graphicsIndex = start_ind + s - 1;
+
+	return graphicsIndex;
+}
 
 

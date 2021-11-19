@@ -1,11 +1,13 @@
 #ifndef GRAPHICS_H_IS_INCLUDED
 #define GRAPHICS_H_IS_INCLUDED
 
+#include "generic.h"
 #include "fssimplewindow.h"
 #include "yspng.h"
 #include "yspngenc.h"
 #include "ysglfontdata.h"
-#include "generic.h"
+
+
 
 // Includes all the classes for graphics.
 // Still under progress
@@ -15,6 +17,8 @@
 // Try to add game-specific functions in respective header files
 
 // Push on github any time you update so that everyone can use the latest version
+
+class Card; // Do NOT remove. Program will fail if removed.
 
 class MainData
 {
@@ -37,8 +41,7 @@ public:
 };
 
 void Render(const MainData& dat, const double x, const double y, const int index); // main render function
-void ColorBackGround(); // Gree color for now
-void SetIndexForGraphics(Card& card); // Work ongoing
-void PrintCardSolitaire(const Card, double cx1, double cy1); // solitaire
-
+void ColorBackGround(); // Green color for now
+void PrintCardSolitaire(const Card, double, double);
+int getIndexForGraphics(const Card);
 #endif

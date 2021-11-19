@@ -2,8 +2,11 @@
 #define GENERIC_H_IS_INCLUDED
 
 #include <vector>
+
+#include "graphics.h"
 #include "fssimplewindow.h"
 #include "ysglfontdata.h"
+
 
 // Includes all the common classes and member functions
 
@@ -17,9 +20,8 @@ class Card {
 
 private:
 	int suit, rank;
-	std::vector<double> pos;
+	std::vector<double> pos; // x and y for graphics
 	int indexForGraphics;
-
 
 public:
 	
@@ -59,6 +61,7 @@ public:
 	Card getRandomCard()const ; // Helper function. Overloaded function.
 	int getDeckSize() const;
 	void removecard(int p);
+	void setGraphicsIndices();// The indices are stored in the Card class and to draw just use card.getIndexForGraphics()
 };
 
 #endif

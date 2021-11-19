@@ -97,11 +97,11 @@ int Card::getGraphicsIndex() const
 {
 	return indexForGraphics;
 }
+
 void Card::setGraphicsIndex(const int val)
 {
 	indexForGraphics = val;
 }
-
 
 // Member functions for Deck class.
 
@@ -125,6 +125,12 @@ Deck::Deck() {
 }
 void Deck::removecard(int p) {
 	getCards()[p].setRank(0);
+}
+void Deck::setGraphicsIndices()
+{
+	for (auto& x : cards) {
+		x.setGraphicsIndex(getIndexForGraphics(x));
+	}
 }
 void Deck::print() const {
 	for (int i = 0; i < cards.size(); i++) {
