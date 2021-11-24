@@ -8,6 +8,7 @@
 #include "solitaire.h"
 #include "fssimplewindow.h"
 #include "ysglfontdata.h"
+#include "graphics.h"
 
 using namespace std;
 
@@ -42,7 +43,7 @@ void Pile::Add(vector<Card> incoming_cards)
 	}
 }
 
-void Pile::PrintPile(void)
+void Pile::PrintPile(const MainData& dat)
 {
 	if (cards.size() != 0)
 	{
@@ -59,7 +60,7 @@ void Pile::PrintPile(void)
 			else
 			{
 				auto top_card = cards[cards.size() - 1];
-				top_card.PrintCard(locx, locy);
+				PrintCardSolitaire(dat, top_card, locx, locy);
 			}
 		}
 		else
@@ -80,7 +81,7 @@ void Pile::PrintPile(void)
 				for (int i = 0; i < cards.size(); i++)
 				{	
 					auto _card = cards[i];
-					_card.PrintCard(locx, locy + 50.0 * i);
+					PrintCardSolitaire(dat, _card, locx, locy + 50.0 * i);
 				}
 			}
 		}
@@ -90,71 +91,71 @@ void Pile::PrintPile(void)
 void Solitaire::MakeSolitarePiles(void)
 {
 	solitaireDeck.shuffleDeck();
-	t1u.cards.push_back(solitaireDeck.subDeck(0, 0).cards[0]);
+	t1u.cards.push_back(solitaireDeck.subDeck(0, 0).getCards()[0]);
 
-	t2u.cards.push_back(solitaireDeck.subDeck(1, 1).cards[0]);
-	t2d.cards.push_back(solitaireDeck.subDeck(2, 2).cards[0]);
+	t2u.cards.push_back(solitaireDeck.subDeck(1, 1).getCards()[0]);
+	t2d.cards.push_back(solitaireDeck.subDeck(2, 2).getCards()[0]);
 
-	t3u.cards.push_back(solitaireDeck.subDeck(3, 3).cards[0]);
-	t3d.cards.push_back(solitaireDeck.subDeck(4, 5).cards[0]);
-	t3d.cards.push_back(solitaireDeck.subDeck(4, 5).cards[1]);
+	t3u.cards.push_back(solitaireDeck.subDeck(3, 3).getCards()[0]);
+	t3d.cards.push_back(solitaireDeck.subDeck(4, 5).getCards()[0]);
+	t3d.cards.push_back(solitaireDeck.subDeck(4, 5).getCards()[1]);
 
-	t4u.cards.push_back(solitaireDeck.subDeck(6, 6).cards[0]);
+	t4u.cards.push_back(solitaireDeck.subDeck(6, 6).getCards()[0]);
 	Deck tempSubDeck = solitaireDeck.subDeck(7, 9);
 	for (int i = 0; i < 3; i++)
 	{
-		t4d.cards.push_back(tempSubDeck.cards[i]);
+		t4d.cards.push_back(tempSubDeck.getCards()[i]);
 	}
 
-	t5u.cards.push_back(solitaireDeck.subDeck(10, 10).cards[0]);
+	t5u.cards.push_back(solitaireDeck.subDeck(10, 10).getCards()[0]);
 	tempSubDeck = solitaireDeck.subDeck(11, 14);
 	for (int i = 0; i < 4; i++)
 	{
-		t5d.cards.push_back(tempSubDeck.cards[i]);
+		t5d.cards.push_back(tempSubDeck.getCards()[i]);
 	}
 
-	t6u.cards.push_back(solitaireDeck.subDeck(15, 15).cards[0]);
+	t6u.cards.push_back(solitaireDeck.subDeck(15, 15).getCards()[0]);
 	tempSubDeck = solitaireDeck.subDeck(16, 20);
 	for (int i = 0; i < 5; i++)
 	{
-		t6d.cards.push_back(tempSubDeck.cards[i]);
+		t6d.cards.push_back(tempSubDeck.getCards()[i]);
 	}
 
-	t7u.cards.push_back(solitaireDeck.subDeck(21, 21).cards[0]);
+	t7u.cards.push_back(solitaireDeck.subDeck(21, 21).getCards()[0]);
 	tempSubDeck = solitaireDeck.subDeck(22, 27);
 	for (int i = 0; i < 6; i++)
 	{
-		t7d.cards.push_back(tempSubDeck.cards[i]);
+		t7d.cards.push_back(tempSubDeck.getCards()[i]);
 	}
 
 	tempSubDeck = solitaireDeck.subDeck(28, 51);
 	for (int i = 0; i < 24; i++)
 	{
-		st.cards.push_back(tempSubDeck.cards[i]);
+		st.cards.push_back(tempSubDeck.getCards()[i]);
 	}
 }
 
-void Solitaire::DrawGame(void)
+void Solitaire::DrawGame(const MainData& dat)
 {
-	s1.PrintPile();
-	s2.PrintPile();
-	s3.PrintPile();
-	s4.PrintPile();
-	st.PrintPile();
-	t1u.PrintPile();
-	t2u.PrintPile();
-	t3u.PrintPile();
-	t4u.PrintPile();
-	t5u.PrintPile();
-	t6u.PrintPile();
-	t7u.PrintPile();
-	t2d.PrintPile();
-	t3d.PrintPile();
-	t4d.PrintPile();
-	t5d.PrintPile();
-	t6d.PrintPile();
-	t7d.PrintPile();
-	dis.PrintPile();
+	s1.PrintPile(dat);
+	s2.PrintPile(dat);
+	s3.PrintPile(dat);
+	s4.PrintPile(dat);
+	st.PrintPile(dat);
+	t1u.PrintPile(dat);
+	t2u.PrintPile(dat);
+	t3u.PrintPile(dat);
+	t4u.PrintPile(dat);
+	t5u.PrintPile(dat);
+	t6u.PrintPile(dat);
+	t7u.PrintPile(dat);
+	t2d.PrintPile(dat);
+	t3d.PrintPile(dat);
+	t4d.PrintPile(dat);
+	t5d.PrintPile(dat);
+	t6d.PrintPile(dat);
+	t7d.PrintPile(dat);
+	dis.PrintPile(dat);
 }
 
 void Solitaire::MoveCardsAndFlip(Pile &source, Pile &destination, int num_cards)
@@ -171,7 +172,7 @@ void Solitaire::MoveCardsAndFlip(Pile &source, Pile &destination, int num_cards)
 					destination.Add(temp);
 				}
 			}
-			else if (source.cards[source.cards.size() - 1].rank==1)
+			else if (source.cards[source.cards.size() - 1].getRank()==1)
 			{
 				auto temp = source.Remove(1);
 				destination.Add(temp);
@@ -180,7 +181,7 @@ void Solitaire::MoveCardsAndFlip(Pile &source, Pile &destination, int num_cards)
 		}
 		else if (destination.name == "tu")
 		{
-			if (source.cards[source.cards.size() - 1].rank == 13)
+			if (source.cards[source.cards.size() - 1].getRank() == 13)
 			{
 				if (destination.cards.size() == 0)
 				{
@@ -210,7 +211,7 @@ void Solitaire::MoveCardsAndFlip(Pile &source, Pile &destination, int num_cards)
 					destination.Add(temp);
 				}
 			}
-			else if (source.cards[source.cards.size() - 1].rank == 1)
+			else if (source.cards[source.cards.size() - 1].getRank() == 1)
 			{
 				auto temp = source.Remove(1);
 				destination.Add(temp);
@@ -218,7 +219,7 @@ void Solitaire::MoveCardsAndFlip(Pile &source, Pile &destination, int num_cards)
 		}
 		else if (destination.name == "tu")
 		{
-			if (source.cards[source.cards.size() - 1 - (num_cards - 1)].rank == 13)
+			if (source.cards[source.cards.size() - 1 - (num_cards - 1)].getRank() == 13)
 			{
 				if (destination.cards.size() == 0)
 				{
@@ -295,9 +296,9 @@ void Solitaire::DrawCard(void)
 
 bool Solitaire::diffColor(Card card1, Card card2)
 {
-	if (card1.suit == 0 || card1.suit == 3)
+	if (card1.getSuit() == 0 || card1.getSuit() == 3)
 	{
-		if (card2.suit == 0 || card2.suit == 3)
+		if (card2.getSuit() == 0 || card2.getSuit() == 3)
 		{
 			return false;
 		}
@@ -306,9 +307,9 @@ bool Solitaire::diffColor(Card card1, Card card2)
 			return true;
 		}
 	}
-	else if (card1.suit == 1 || card1.suit==2)
+	else if (card1.getSuit() == 1 || card1.getSuit() ==2)
 	{
-		if (card2.suit == 0 || card2.suit == 3)
+		if (card2.getSuit() == 0 || card2.getSuit() == 3)
 		{
 			return true;
 		}
@@ -326,7 +327,7 @@ bool Solitaire::checkSourceCardsValidity(Pile source, int num_cards)
 		auto card1 = source.cards[source.cards.size() - 1 - i];
 		auto card2 = source.cards[source.cards.size() - 2 - i];
 
-		if (diffColor(card1, card2) && (card1.rank == card2.rank - 1))
+		if (diffColor(card1, card2) && (card1.getRank() == card2.getRank() - 1))
 		{
 
 		}
@@ -340,7 +341,7 @@ bool Solitaire::checkSourceCardsValidity(Pile source, int num_cards)
 
 bool Solitaire::checkDestinationValidityTable(Card card1, Card card2)
 {
-	if (diffColor(card1, card2) && (card1.rank == card2.rank - 1))
+	if (diffColor(card1, card2) && (card1.getRank() == card2.getRank() - 1))
 	{
 		return true;
 	}
@@ -352,7 +353,7 @@ bool Solitaire::checkDestinationValidityTable(Card card1, Card card2)
 
 bool Solitaire::checkDestinationValiditySuits(Card card1, Card card2)
 {
-	if ((card1.suit == card2.suit) && (card1.rank == card2.rank + 1))
+	if ((card1.getSuit() == card2.getSuit()) && (card1.getRank() == card2.getRank() + 1))
 	{
 		return true;
 	}
@@ -374,7 +375,7 @@ bool Solitaire::CheckWin(void)
 	}
 }
 
-void Solitaire::PlaySolitaire(void)
+void Solitaire::PlaySolitaire(const MainData& dat)
 {
     srand(time(NULL));
 
@@ -483,8 +484,6 @@ void Solitaire::PlaySolitaire(void)
     int turn = 0;
     int tempPileNum = 0;
     int tempNumCards;
-
-    FsOpenWindow(0, 0, 1000, 600, 1);
 
     while (CheckWin() == false)
     {
@@ -1232,8 +1231,9 @@ void Solitaire::PlaySolitaire(void)
         DrawRect(t5u.locx + 5, t5u.locy - 5, 10, 10);
         DrawRect(t6u.locx + 5, t6u.locy - 5, 10, 10);
         DrawRect(t7u.locx + 5, t7u.locy - 5, 10, 10);
-        DrawGame();
+        DrawGame(dat);
 
         FsSwapBuffers();
+        FsSleep(100);
     }
 }

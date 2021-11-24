@@ -17,7 +17,7 @@ public:
 
 	vector<Card> Remove(int num_cards);
 	void Add(vector<Card> incoming_cards);
-	void PrintPile(void);
+	void PrintPile(const MainData& dat);
 };
 
 class Solitaire {
@@ -35,6 +35,9 @@ public:
 	void ResetDeck(void);
 	void DrawCard(void);
 	bool CheckWin(void);
-	void DrawGame(void);
-	void PlaySolitaire(void);
+	void DrawGame(const MainData&);
+	void PlaySolitaire(const MainData&);
+	~Solitaire() {
+
+	}
 };

@@ -1,22 +1,22 @@
 #include <iostream>
 #include <stdio.h>
+#include <string.h>
+#include <string>
+#include <chrono>
+#include <thread>
 
 #include "blackjack.h"
+#include "generic.h"
+#include "graphics.h"
 #include "fssimplewindow.h"
 #include "ysglfontdata.h"
 
 BlackJack::BlackJack()
 {
-    /*userIn = '.';
-    std::cout << "Playing BlackJack--\nEnter your name-> ";
-    std::getline(std::cin, player_name);*/
-    player_name = "Player";
-    user.setName(player_name);
-
-    std::cout << player_name << " vs " << dealer_name << "\n" << std::endl;
-
+    int userMove = -1;
     mainDeck.shuffleDeck();
-
+    mainDeck.setGraphicsIndices();
+    
     ace1.setSuit(0); ace1.setRank(1);
     ace2.setSuit(1); ace1.setRank(1);
     ace3.setSuit(2); ace1.setRank(1);
@@ -25,27 +25,6 @@ BlackJack::BlackJack()
 void BlackJack::setHands() {
     user.createHand(mainDeck);
     comp.createHand(mainDeck);
-}
-void BlackJack::playBlackJackMultipleTimes()
-{
-    while (true) {
-        playBlackJack();
-        printf("Total money = %d\n", user.getRemMoney());
-        printf("Do you want to play again (y/n)? ->");
-        std::cin >> userIn;
-        if (userIn == 'y' || userIn == 'Y') {
-            printf("Total money = %d\n", user.getRemMoney());
-            continue;
-        }
-        else if (userIn == 'n' || userIn == 'N') {
-            printf("Total money = %d\n", user.getRemMoney());
-            break;
-        }
-        else {
-            printf("Wrong input. Enter again->");
-            //exit(-1);
-        }
-    }
 }
 
 int BlackJack::checkWinner() const
@@ -63,175 +42,284 @@ int BlackJack::checkWinner() const
     */
 
     if (user.getSum() == 21 && comp.getSum() != 21) {
-        std::cout << "You got a BlackJack! You Won!\n\n";
         return 2;
     }
     else if (user.getSum() > 21) {
-        std::cout << "You went over 21. You lost.\n\n";
         return 0;
     }
     else if (user.getSum() > comp.getSum() && user.getSum() < 21) {
-        std::cout << "You beat the dealer. You won!\n\n";
         return 1;
     }
     else if (comp.getSum() > user.getSum() && comp.getSum() < 21) {
-        std::cout << "The dealer beat you. You lost. Try again.\n\n";
         return 0;
     }
     else if (comp.getSum() > 21 && user.getSum() < 21) {
-        std::cout << "The dealer bust. You won!\n\n";
         return 1;
     }
     else if (comp.getSum() == user.getSum() && user.getSum() <= 21) {
-        std::cout << "It is a tie.\n\n";
         return 3;
     }
     else {
-        std::cout << "The dealer won. You lost.\n\n";
         return 0;
     }
     return -1; // Indicates that logic is missing
-
 }
-
-void BlackJack::getUserInput() const
-{
-    /*
-    Convert to a key based input
-    S -> Stand
-    H -> Hit
-    or mouse based
-    */
-
-    std::cout << "What would you like to do?\n";
-    std::cout << "Stand: \t0" << "\n";
-    std::cout << "Hit: \t1" << "\n";
-}
-void BlackJack::playBlackJack()
-{
-    // Get user bet
-    printf("Total Money: %d \n\nEnter bet amount>", user.getRemMoney());
-    user.setBet(std::cin);
-    user.setRemMoney(user.getBet() * -1); // decrease total by bet amount
-
-    setHands();
-    //comp.countHand();
-    user.countHand();
-    user.showHand();
+void BlackJack::PlayerTurn() {
     
-    comp.changeBool(false);
-    std::cout << dealer_name << "'s hand ---------\n\n";
-    comp.showHand();
-
-    while (gameOver == false) {
-        getUserInput();
-        user.setMove(std::cin); 
-        if (user.getMove() == 0) {
-            std::cout << "\nYou have chosen to stand.---------------\n\n";
-            user.countHand(); 
-            user.showHand(); 
-            gameOver = true;
-            break;
-        }
-        if (user.getMove() == 1) {
-            if (numHits > MAX_HITS) {
-                std::cout << "\nYou cannot get any more cards.-------------------\n\n";
-                user.countHand();
-                user.showHand();
-                gameOver = true;
-                break;
+    if (user.getMove() == 0) {
+        user.countHand();
+        playerTurn = false;
+        dealerTurn = true;
+        playerState = 0; // transitioning to dealer turn
+    }
+    else if (user.getMove() == 1) {
+        if (numHits == MAX_HITS) {
+            user.countHand();
+            playerTurn = false;
+            dealerTurn = true;
+            playerState = 0; // transitioning to dealer turn
             }
-            
+        else {
             user.addCard(mainDeck.getRandomCard(user.getHand(), comp.getHand()));
-            user.countHand(); 
+            user.countHand();
             if (user.getSum() > 21 && (user.getHand().find(ace1) == true || comp.getHand().find(ace2) == true || comp.getHand().find(ace3) == true || comp.getHand().find(ace4) == true)) {
-                comp.setSum(comp.getSum() - 10);
+                user.setSum(user.getSum() - 10);
             }
-            user.showHand(); 
             numHits++;
+            playerState = 0; // to get the next input
+
             if (user.getSum() > 21) {
-                std::cout << "\nYou went over 21.-----------------\n\n";
-                gameOver = true;
-                break;
+                playerTurn = false;
+                dealerTurn = true;
+                playerState = 0;
             }
-            if (user.getSum() == 21) {
-                std::cout << "\nYou got a BlackJack!\n\n";
-                gameOver = true;
-                break;
-            }
-            std::cout << dealer_name << "'s hand ---------\n\n";
-            comp.showHand();
         }
     }
+    user.setCoordinates();
+}
+void BlackJack::DealerTurn() {
 
-    comp.changeBool(true);
-    comp.countHand();
-    comp.showHand();
-    
-    while (comp.getSum() < DEALER_MIN_SUM) {
-        
+    if (comp.getSum() < DEALER_MIN_SUM) {
+
         comp.addCard(mainDeck.getRandomCard(user.getHand(), comp.getHand()));
-        comp.countHand(); 
+        comp.countHand();
 
         if (comp.getSum() > DEALER_MIN_SUM && (comp.getHand().find(ace1) == true || comp.getHand().find(ace2) == true || comp.getHand().find(ace3) == true || comp.getHand().find(ace4) == true)) {
             comp.setSum(comp.getSum() - 10);
-            
         }
-        comp.showHand();
-        
-    }
-    std::cout << "Dealer cannot take anymore cards.\n\n";
-
-    if (checkWinner() == 2) {
-        user.setRemMoney(user.getBet() * 3);
-    }
-    else if (checkWinner() == 1) {
-        user.setRemMoney(user.getBet() * 2);
-    }
-    else if (checkWinner() == 3) {
-        user.setRemMoney(user.getBet() * 1);
-    }
-    else if (checkWinner() == -1) {
-        std::cout << "Logic error";
-        exit(-1);
+        if (comp.getSum() > 21) {
+            dealerTurn = false;
+            goToWinner = true;
+        }
     }
     else {
-        user.setRemMoney(user.getBet() * 0);
+        dealerTurn = false;
+        goToWinner = true;
     }
+    comp.setCoordinates();
 }
-void BlackJack::DisplayOptions() {
+void BlackJack::EndGameOptions() const {
+    glColor3ub(0, 0, 0);
+    glRasterPos2d(10, 790);
+    YsGlDrawFontBitmap16x20("N: New Game");
     
-    glColor3ub(255, 0, 0);
-    glRasterPos2d(70, 550);
-    YsGlDrawFontBitmap16x24("Options --\n");
-    glColor3ub(255, 0, 0);
-    glRasterPos2d(70, 600);
-    YsGlDrawFontBitmap16x24("S: To Stand\n");
-    glColor3ub(255, 0, 0);
-    glRasterPos2d(70, 650);
-    YsGlDrawFontBitmap16x24("H: To Hit\n");
+    glRasterPos2d(230, 790);
+    YsGlDrawFontBitmap16x20("M: Main Menu");
+
+    glRasterPos2d(460, 790);
+    YsGlDrawFontBitmap16x20("ESC: Quit Program");
+
 }
-
-// Dealer class member functions
-
-void Dealer::showHand()
+int BlackJack::playBlackJack(MainData& dat, int money)
 {
-    // Change this to a draw function
-    if (!showBothCards) {
-        std::cout << "1: ";
-        hand.getCards()[0].print();
-        std::cout << "2: CARD HIDDEN\n\n";
-    }
-    else {
-        for (int i = 0; i < hand.getDeckSize(); i++) {
-            std::cout << i + 1 << ": ";
-            hand.getCards()[i].print();
+    // Get user bet
+    //printf("Total Money: %d \n\nEnter bet amount>", user.getRemMoney());
+    //user.setBet(std::cin);
+    //user.setRemMoney(user.getBet() * -1); // decrease total by bet amount
+
+    // show player name   
+    
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    std::chrono::duration<double> elapsed_seconds;
+
+    setHands();    
+    user.countHand(); user.initCoordinates();
+    comp.countHand(); comp.initCoordinates();
+    int winner = -2;
+    bool sleep = true;
+    
+    int bet = 0;
+    
+    auto b = std::to_string(bet);
+
+    while (getBet) {
+        
+        FsPollDevice();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        auto key = FsInkey();
+        if (key == FSKEY_ESC) {
+            break;
         }
-        std::cout << "\nTotal dealer sum = \t" << getSum() << "\n\n";
+        else if (FSKEY_UP == key && bet != dat.getMoney()) {
+            bet += betdx;
+            b = std::to_string(bet);
+        }
+        else if (FSKEY_DOWN == key && bet != 0) {
+            bet -= betdx;
+            b = std::to_string(bet);
+        }
+        else if (FSKEY_ENTER == key) {
+            getBet = false;
+            dat.setMoney(-1 * bet);
+            break;
+        }
+        
+
+        ColorBackGround();
+        DisplayBlackJackBackground(dat);
+        
+        DisplayMoneyAndName(dat);
+        
+        glColor3ub(255, 0, 0);
+        glRasterPos2d(500, 80);
+        YsGlDrawFontBitmap32x48("BlackJack");
+
+        glColor3ub(255, 0, 0);
+        glRasterPos2d(150, 750);
+        YsGlDrawFontBitmap20x28("Enter Bet Amount: $");
+
+        glRasterPos2d(535, 750);
+        YsGlDrawFontBitmap20x28(b.c_str());
+        
+        FsSwapBuffers();
+        FsSleep(10);
     }
-    
-    
+
+    while (playGame) {
+        
+        FsPollDevice();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        auto key = FsInkey();
+        if (key == FSKEY_ESC) {
+            return 0;
+        }
+
+        if (playerTurn && FSKEY_S == key) {
+            user.setMove(0);
+            playerState = 1;
+        }
+        else if (playerTurn && FSKEY_H == key) {
+            user.setMove(1);
+            playerState = 1;
+        }
+        else if (!dealerTurn && !playerTurn && FSKEY_N == key) {
+            return 1; // new blackjack game
+        }
+        else if (!dealerTurn && !playerTurn && FSKEY_M == key) {
+            return 2; // choose new game in the main menu
+        }
+
+        if (playerTurn == true && dealerTurn == false && playerState == 1) {
+            PlayerTurn();
+        }
+        if (dealerTurn == true && playerTurn == false) {
+            DealerTurn();
+        }
+
+        if (dealerTurn == false && playerTurn == false && goToWinner) {
+            winner = checkWinner();
+            switch (winner) {
+            case 1:
+                dat.setMoney(2 * bet);
+                break;
+            case 2:
+                dat.setMoney(3 * bet);
+                break;
+            case 3:
+                dat.setMoney(1 * bet);
+                break;
+            case 0:
+                dat.setMoney(0 * bet);
+                break;
+            }
+            start = std::chrono::system_clock::now();
+            goToWinner = false;
+        }
+        
+        // Rendering functions
+
+        ColorBackGround();
+        DisplayBlackJackBackground(dat);
+
+        DisplayMoneyAndName(dat);
+        
+        glColor3ub(255, 0, 0);
+        glRasterPos2d(500, 80);
+        YsGlDrawFontBitmap32x48("BlackJack");
+
+
+        if (playerTurn == true && dealerTurn == false) {
+            DisplayOptions();
+            comp.drawOne(dat);
+        }
+        if (dealerTurn == true && playerTurn == false) {
+            comp.drawTwo(dat);
+        }
+
+        if (dealerTurn == false && playerTurn == false) {
+        
+            int r = rand() % 256;
+            int g = rand() % 256;
+            int b = rand() % 256;
+            if (winner == 3) {
+                glColor3ub(0, 0, 255);
+                glRasterPos2d(150, 750);
+                YsGlDrawFontBitmap16x20("It's a  tie.");
+            }
+            else if (winner == 2) {
+                glColor3ub(r, g, b);
+                glRasterPos2d(150, 750);
+                YsGlDrawFontBitmap16x20("You got a BlackJack! You Won!!");
+            }
+            else if (winner == 1) {
+                glColor3ub(r, g, b);
+                glRasterPos2d(150, 750);
+                YsGlDrawFontBitmap16x20("You beat the dealer. You Won!!");
+            }
+            else if (winner == 0) {
+                glColor3ub(0, 0, 255);
+                glRasterPos2d(150, 750);
+                YsGlDrawFontBitmap16x20("The dealer beat you. You Lose :(");
+            }
+            comp.drawTwo(dat);
+            elapsed_seconds = std::chrono::system_clock::now() - start;
+            if (elapsed_seconds.count() > 3.0 ) {
+                EndGameOptions();
+            }
+        }
+        user.drawHand(dat);
+        FsSwapBuffers();
+        FsSleep(25);
+    }
 }
+void BlackJack::DisplayOptions() const {
+    
+    glColor3ub(255, 0, 0);
+    glRasterPos2d(20, 730);
+    YsGlDrawFontBitmap16x20("Player's turn. Options --\n");
+    glColor3ub(255, 0, 0);
+    glRasterPos2d(20, 760);
+    YsGlDrawFontBitmap16x20("S: To Stand\n");
+    glColor3ub(255, 0, 0);
+    glRasterPos2d(20, 790);
+    YsGlDrawFontBitmap16x20("H: To Hit\n");
+}
+void BlackJack::DisplayBlackJackBackground(const MainData& dat) const {
+    Render(dat, 0, 700, 53);
+}
+
 int Dealer::getSum() const
 {
     return sum;
@@ -255,10 +343,6 @@ void Dealer::countHand()
         }
     }
 }
-void Dealer::changeBool(bool flag)
-{
-    showBothCards = flag;
-}
 void Dealer::createHand(const Deck& mainDeck)
 {
     hand = mainDeck.subDeck(0, 1);
@@ -273,6 +357,58 @@ void Dealer::addCard(const Card& c)
 void Dealer::setSum(int x) {
     sum = x;
 }
+void Dealer::initCoordinates() {
+    std::vector<Card>& cards = hand.getCards(); // careful
+
+    cards[0].setPos(280, 350);
+    cards[1].setPos(430, 350);
+}
+void Dealer::setCoordinates() {
+    if (hand.getDeckSize() > 3) {
+        std::vector<Card>& c = hand.getCards();
+
+        c.back().setPosY(350); // same as others
+        c.back().setPosX(c[c.size() - 2].getPos()[0]); // set x as previous cards x
+
+        for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
+            c[i].setPosX(c[i].getPos()[0] - 100); // move all previous cards by 100 towards left
+        }
+    }
+    if (hand.getDeckSize() == 3) {
+        std::vector<Card>& c = hand.getCards();
+
+        c.back().setPosY(350); // same as others
+        c.back().setPosX(c[c.size() - 2].getPos()[0] + 70); // set x as previous cards x
+
+        for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
+            c[i].setPosX(c[i].getPos()[0] - 30); // move all previous cards by 100 towards left
+        }
+    }
+}
+void Dealer::drawOne(const MainData& dat) {
+    
+    Render(dat, hand.getCards()[0].getPos()[0], hand.getCards()[0].getPos()[1], hand.getCards()[0].getGraphicsIndex());
+    Render(dat, hand.getCards()[1].getPos()[0], hand.getCards()[1].getPos()[1], 0);
+
+}
+void Dealer::drawTwo(const MainData& dat) {
+
+    for (int i = 0; i < hand.getDeckSize(); ++i) {
+        Render(dat, hand.getCards()[i].getPos()[0], hand.getCards()[i].getPos()[1], hand.getCards()[i].getGraphicsIndex());
+    }
+    showSum();
+}
+void Dealer::showSum() const {
+    glColor3ub(0, 0, 0);
+    glRasterPos2d(300, 200);
+    YsGlDrawFontBitmap16x24("Dealer total: ");
+
+    auto f = std::to_string(sum);
+    const char* sumChar = f.c_str();
+
+    glRasterPos2d(500, 200);
+    YsGlDrawFontBitmap16x20(sumChar);
+}
 
 
 // Player class member functions
@@ -284,15 +420,12 @@ void Player::setName(std::string str)
 void Player::createHand(const Deck& mainDeck) {
     hand = mainDeck.subDeck(2, 3);
 }
-void Player::showHand()
-{
-    std::cout << name << "'s hand is------\n\n";
-    hand.print();
-    std::cout << "\nTotal player sum = \t" << getSum() << "\n\n";
-}
 int Player::getSum() const
 {
     return sum;
+}
+void Player::setSum(const int x) {
+    sum = x;
 }
 void Player::countHand()
 {
@@ -313,8 +446,8 @@ void Player::countHand()
         }
     }
 }
-void Player::setMove(std::istream& stream) {
-    stream >> move;
+void Player::setMove(const int val) {
+    move = val;
 }
 int Player::getMove() const {
     return move;
@@ -327,9 +460,9 @@ void Player::addCard(const Card& c)
     hand.getCards().push_back(c);
 }
 
-void Player::setBet(std::istream& stream)
+void Player::setBet(const int x)
 {
-    stream >> bet;
+    bet = x;
 }
 void Player::setRemMoney(const int x)
 {
@@ -343,4 +476,56 @@ int Player::getBet() const
 int Player::getRemMoney() const
 {
     return totalMoney;
+}
+void Player::initCoordinates() {
+    std::vector<Card>& cards = hand.getCards();
+
+    cards[0].setPos(280, 500);
+    cards[1].setPos(430, 500);
+}
+void Player::drawHand(const MainData& dat) {
+
+    std::vector<Card> c = hand.getCards();
+
+    for (int i = 0; i < hand.getDeckSize(); ++i) {
+        Render(dat, c[i].getPos()[0], c[i].getPos()[1], c[i].getGraphicsIndex());
+    }
+    
+    showSum();
+}
+void Player::showSum() const {
+    glColor3ub(255, 0, 0);
+    glRasterPos2d(300, 550);
+    YsGlDrawFontBitmap16x24("Player total: ");
+
+    auto f = std::to_string(sum);
+    const char* sumChar = f.c_str();
+    
+    glRasterPos2d(500, 550);
+    YsGlDrawFontBitmap16x20(sumChar);
+}
+void Player::setCoordinates()
+{
+    // init coords are 250, 350 in X and 500 in Y
+    if (hand.getDeckSize() > 3) {
+        std::vector<Card>& c = hand.getCards();
+
+        c.back().setPosY(500); // same as others
+        c.back().setPosX(c[c.size() - 2].getPos()[0]); // set x as previous cards x
+
+        for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
+            c[i].setPosX(c[i].getPos()[0] - 100); // move all previous cards by 100 towards left
+        }
+    }
+    else if (hand.getDeckSize() == 3) {
+        std::vector<Card>& c = hand.getCards();
+
+        c.back().setPosY(500); // same as others
+        c.back().setPosX(c[c.size() - 2].getPos()[0] + 70); // set x as previous cards x      
+
+        for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
+            c[i].setPosX(c[i].getPos()[0] - 30); // move all previous cards by 100 towards left
+
+        }
+    }
 }

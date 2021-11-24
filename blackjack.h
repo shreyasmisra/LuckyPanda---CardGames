@@ -5,6 +5,8 @@
 #include <iostream>
 
 #include "generic.h"
+#include "graphics.h"
+#include "fssimplewindow.h"
 
 // classes for blackjack
 
@@ -28,6 +30,13 @@ public:
 	Deck getHand() const;
 	void addCard(const Card&);
 	void setSum(int);
+
+	// drawing functions
+	void initCoordinates();
+	void drawOne(const MainData&);
+	void drawTwo(const MainData&);
+	void showSum() const;
+	void setCoordinates();
 };
 
 class Player : public Deck {
@@ -44,15 +53,22 @@ public:
 	void createHand(const Deck&);
 	void showHand();
 	int getSum() const;
+	void setSum(const int);
 	void countHand();
 	int getMove() const;
-	void setMove(std::istream&);
+	void setMove(const int);
 	Deck getHand() const;
 	void addCard(const Card&);
-	void setBet(std::istream&);
+	void setBet(const int);
 	void setRemMoney(const int);
 	int getBet() const;
 	int getRemMoney() const;
+
+	// Drawing functions
+	void initCoordinates();
+	void drawHand(const MainData&);
+	void showSum() const;
+	void setCoordinates();
 };
 
 
@@ -67,24 +83,40 @@ private:
 	Deck mainDeck;
 	Player user;
 	Dealer comp;
+	
 
-	bool gameOver = false;
+	bool playerTurn = true;
+	bool dealerTurn = false;
+	bool goToWinner = false;
+	int playerState = 0;
+	int betdx = 50;
+
 	int numHits = 0;
-
-	std::string dealer_name = "Computer";
-	std::string player_name;
-
+	int bet = 0;
 	char userIn;
+	int userMove;
 public:
+	const char* playerName;
+	bool playGame = false;
+	bool getBet = false;
 
 	BlackJack();
+
+	void PlayerTurn();
+	void DealerTurn();
 
 	void setHands();
 	int checkWinner() const;
 	void getUserInput() const;
-	void playBlackJack();
-	void playBlackJackMultipleTimes();
-	void DisplayOptions();
+	int playBlackJack(MainData&, int);
+	void playBlackJackMultipleTimes(const MainData&);
+
+	// Drawing functions
+	void DisplayOptions() const;
+	void DisplayMoney() const;
+	void DisplayCards(const MainData&);
+	void EndGameOptions() const;
+	void DisplayBlackJackBackground(const MainData&) const;
 };
 
 #endif

@@ -28,7 +28,8 @@ public:
 	void printcard() const;
 	void sort();
 	void addscore(int p);
-	int checkorraise(bool& raise, int onecpubet);
+	int checkorraise(bool& raise, int onecpubet, int pbet, int cpubet, const int pindex[2], const int cpuindex[2], const int openindex[2]);
+	int fcheckorraise(bool& raise, int onecpubet, int pbet, int cpubet, const int pindex[2], const int cpuindex[2], const int openindex[2]);
 };
 
 //CPU Class
@@ -57,7 +58,8 @@ int nofkinds(Card cards[5]);
 int straight(Card cards[5]);
 int fullhouse(Card cards[5]);
 void tiebreaker(int& cpupoints, int& ppoints, Card ccards[5], Card pcards[5]);
-void pokerhand(Cpu cpu, player player, int& pbalance, int& cpubalance);
+void pokerhand(Cpu cpu, player player, int& pbalance, int& cpubalance, MainData dat);
 void playpokerhand(int&, int&);
+void playertag(int pbet, int cpubet);
 
 #endif

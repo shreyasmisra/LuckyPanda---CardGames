@@ -7,9 +7,6 @@
 #include "yspngenc.h"
 #include "ysglfontdata.h"
 
-
-
-// Includes all the classes for graphics.
 // Still under progress
 // Solitaire uses graphics for the intial debugging
 
@@ -26,6 +23,9 @@ private:
 	YsRawPngDecoder* png;
 	GLuint* texId;
 	int nPics;
+	std::vector<int> windowDims;
+	int money;
+	std::string playerName;
 
 public:
 
@@ -38,10 +38,21 @@ public:
 	int getNumPics() const;
 	void Create(const int); // dynamically allocates memory to pointers
 	void DecodeImages(); // decodes images
+	std::vector<int> getWindowDimensions() const;
+	void setWindowDimensions(const int, const int);
+	void setPlayerName(std::string);
+	void setMoney(const int num); // send num as the amount you want to decrease or increase the money
+	int getMoney() const;
+	std::string getPlayerName()const;
+	std::string getMoneyChar() const;
+
 };
 
 void Render(const MainData& dat, const double x, const double y, const int index); // main render function
 void ColorBackGround(); // Green color for now
-void PrintCardSolitaire(const Card, double, double);
+void PrintCardSolitaire(const MainData& dat, const Card, double, double);
 int getIndexForGraphics(const Card);
+void DisplayGames();
+void DisplayMoneyAndName(const MainData&);
+void EndGameOptions();
 #endif

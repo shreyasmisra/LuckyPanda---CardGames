@@ -4,8 +4,6 @@
 #include <vector>
 
 #include "graphics.h"
-#include "fssimplewindow.h"
-#include "ysglfontdata.h"
 
 
 // Includes all the common classes and member functions

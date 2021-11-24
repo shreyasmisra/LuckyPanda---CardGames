@@ -7,7 +7,6 @@
 #include <stdlib.h>
 
 
-
 class SevenUp 
 {
 private:
@@ -19,19 +18,19 @@ private:
 	int money_left;
 	Card dealercard;
 	char UI;
-
-
+	bool playerturn = true;
+	bool dealerturn = false;
 
 public:
-	void PlaySevenUp();
+	bool getbet = false;
+	const char* playerName;
+	bool playGame = false;
+	int PlaySevenUp(MainData&, int money);
 	int ClassifySet();
-	void CheckMatch();
-	//int CountBet();
+	int CheckMatch();
+	void DispOnScreen();
 	SevenUp();
 
 };
-
-
-
 
 #endif
