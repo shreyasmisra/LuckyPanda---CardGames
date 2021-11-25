@@ -29,7 +29,6 @@ void MainData::CleanUp() {
 	}
 }
 MainData::~MainData() {
-	
 	CleanUp();
 }
 YsRawPngDecoder* MainData::getPNGPointer() const
@@ -334,12 +333,12 @@ void EndGameOptions()
 {
 	// After each game give the user these options to continue playing the game (New game) or choose a different game in the main menu
 	glColor3ub(0, 0, 0);
-	glRasterPos2d(50, 550);
+	glRasterPos2d(10, 790);
 	YsGlDrawFontBitmap16x20("N: New Game");
 
-	glRasterPos2d(50, 570);
+	glRasterPos2d(230, 790);
 	YsGlDrawFontBitmap16x20("M: Main Menu");
 
-	glRasterPos2d(50, 590);
+	glRasterPos2d(460, 790);
 	YsGlDrawFontBitmap16x20("ESC: Quit Program");
 }
