@@ -28,6 +28,8 @@ private:
 	std::string playerName;
 
 public:
+	bool* rendered; // do not modify
+	std::string soundName;
 
 	MainData();
 	MainData(const int);
@@ -49,8 +51,9 @@ public:
 };
 
 void Render(const MainData& dat, const double x, const double y, const int index); // main render function
+void Render(const MainData& dat, const double x, const double y, const int index, double scale); // overloaded function with scale
 void ColorBackGround(); // Green color for now
-void PrintCardSolitaire(const MainData& dat, const Card, double, double);
+void PrintCardSolitaire(const MainData& dat, const Card, double, double, int);
 int getIndexForGraphics(const Card);
 void DisplayGames();
 void DisplayMoneyAndName(const MainData&);

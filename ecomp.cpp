@@ -4,6 +4,7 @@
 #include <string>
 #include <stdio.h>
 
+#include "yssimplesound.h"
 #include "seven_up.h"
 #include "blackjack.h"
 #include "poker_hand.h"
@@ -14,9 +15,9 @@
 #include "fssimplewindow.h"
 #include "ysglfontdata.h"
 
-const int windowWidth = 1000; // change to 800
+const int windowWidth = 800; // change to 800
 const int windowHeight = 800;
-const int nPics = 56; // 0 is card back
+const int nPics = 60; // 0 is card back
 int money = 1000;
 
 int main() {
@@ -32,6 +33,7 @@ int main() {
 	std::string gameName; gameName = "";
 
 	MainData dat; dat.Create(nPics); dat.DecodeImages(); dat.setWindowDimensions(windowWidth, windowHeight); dat.setMoney(money);
+	dat.soundName = "applause.wav";
 	TextInput t;
 
 	FsOpenWindow(0, 0, windowWidth, windowHeight, 1);
@@ -43,7 +45,14 @@ int main() {
 		FsPollDevice();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		ColorBackGround();
+		glColor3ub(0, 0, 0);
+		glBegin(GL_QUADS);
+		glVertex2i(0, 0);
+		glVertex2i(800, 0);
+		glVertex2i(800, 800);
+		glVertex2i(0, 800);
+		glEnd();
+		glFlush();
 
 		
 		if (getPlayerName) {
@@ -62,11 +71,15 @@ int main() {
 			exit(0);
 		}
 
-		Render(dat, 0, 600, 54);
+		Render(dat, 0, 700, 54);
 
 		glColor3ub(0, 255, 255);
-		glRasterPos2d(550, 350);
-		YsGlDrawFontBitmap24x40("LUCKY HAND");
+		glRasterPos2d(100, 70);
+		YsGlDrawFontBitmap24x40("Team Lucky Panda Presents");
+
+		glColor3ub(0, 255, 255);
+		glRasterPos2d(500, 350);
+		YsGlDrawFontBitmap28x44("LUCKY HAND");
 
 		glColor3ub(0, 255, 255);
 		glRasterPos2d(430, 550);
@@ -74,7 +87,7 @@ int main() {
 
 
 		glColor3ub(255, 0, 0);
-		glRasterPos2d(50, 700);
+		glRasterPos2d(50, 750);
 		YsGlDrawFontBitmap20x28("Enter your name:");
 		t.Draw();
 
@@ -83,7 +96,7 @@ int main() {
 	}
 
 	// MainMenu which includes all the games
-
+	
 	while (true) {
 		FsSwapBuffers();
 		FsPollDevice();
@@ -114,6 +127,11 @@ int main() {
 		
 		DisplayMoneyAndName(dat);
 
+		Render(dat, 25, 390, 56, 0.55);
+		Render(dat, 450, 390, 58, 0.55);
+		Render(dat, 25, 690, 57, 0.2);
+		Render(dat, 450, 690, 59, 0.3);
+		
 		if (getPlayerGame) {
 			DisplayGames();
 		}
@@ -166,51 +184,47 @@ int main() {
 
 		if (gameName == "poker") {
 			// sub conditions to play the game
-
-			Cpu cpu;
-			player p1;
-			int pmoney = 1000;
+			int option = 0;
 			int cpumoney = 10000;
-			playertag(0, 0);
-			pokerhand(cpu, p1, pmoney, cpumoney, dat);
+			money = dat.getMoney();
+			option = playpokerhand(money, cpumoney, dat);
 
-			//option = pokerhand(cpu, p1, pmoney, cpumoney, dat); // play one turn. infinite loop inside it
-			//if (option == 1)
-			//{
-			//	continue;
-			//}
-			//else if (option == 2) {
-			//	// play different game
-			//	gameName = "";
-			//	getPlayerGame = true;
-			//}
-			//else {
-			//	printf("Program terminated");
-			//	break;
-			//}
+			// play one turn. infinite loop inside it
+			if (option == 1)
+			{
+				continue;
+			}
+			else if (option == 2) {
+				// play different game
+				gameName = "";
+				getPlayerGame = true;
+			}
+			else {
+				printf("Program terminated");
+				break;
+			}
 		}
 		if (gameName == "solitaire") {
-			
+
 			Solitaire s;
-			s.PlaySolitaire(dat);
 
-			//option = s.PlaySolitaire(dat); // play one turn. infinite loop inside it
-			//if (option == 1)
-			//{
-			//	continue;
-			//}
-			//else if (option == 2) {
-			//	// play different game
-			//	gameName = "";
-			//	getPlayerGame = true;
-			//}
-			//else {
-			//	printf("Program terminated");
-			//	break;
-			//}
+			option = s.PlaySolitaire(dat); // play one turn. infinite loop inside it
+			if (option == 1)
+			{
+				continue;
+			}
+			else if (option == 2) {
+				// play different game
+				gameName = "";
+				getPlayerGame = true;
+			}
+			else {
+				printf("Program terminated");
+				break;
+			}
 		}
-
-		FsSleep(10);
+		
+		FsSleep(25);
 	}
 
 	return 0;

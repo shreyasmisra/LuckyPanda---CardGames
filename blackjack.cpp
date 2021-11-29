@@ -10,6 +10,7 @@
 #include "graphics.h"
 #include "fssimplewindow.h"
 #include "ysglfontdata.h"
+#include "yssimplesound.h"
 
 BlackJack::BlackJack()
 {
@@ -84,6 +85,7 @@ void BlackJack::PlayerTurn() {
             user.countHand();
             if (user.getSum() > 21 && (user.getHand().find(ace1) == true || comp.getHand().find(ace2) == true || comp.getHand().find(ace3) == true || comp.getHand().find(ace4) == true)) {
                 user.setSum(user.getSum() - 10);
+                //std::cout << "hi";
             }
             numHits++;
             playerState = 0; // to get the next input
@@ -106,6 +108,7 @@ void BlackJack::DealerTurn() {
 
         if (comp.getSum() > DEALER_MIN_SUM && (comp.getHand().find(ace1) == true || comp.getHand().find(ace2) == true || comp.getHand().find(ace3) == true || comp.getHand().find(ace4) == true)) {
             comp.setSum(comp.getSum() - 10);
+            //std::cout << "hi";
         }
         if (comp.getSum() > 21) {
             dealerTurn = false;
@@ -132,12 +135,6 @@ void BlackJack::EndGameOptions() const {
 }
 int BlackJack::playBlackJack(MainData& dat, int money)
 {
-    // Get user bet
-    //printf("Total Money: %d \n\nEnter bet amount>", user.getRemMoney());
-    //user.setBet(std::cin);
-    //user.setRemMoney(user.getBet() * -1); // decrease total by bet amount
-
-    // show player name   
     
     std::chrono::time_point<std::chrono::system_clock> start, end;
     std::chrono::duration<double> elapsed_seconds;
@@ -152,6 +149,15 @@ int BlackJack::playBlackJack(MainData& dat, int money)
     
     auto b = std::to_string(bet);
 
+    YsSoundPlayer soundPlayer;
+    YsSoundPlayer::SoundData wav;
+    if (YSOK != wav.LoadWav(dat.soundName.c_str()))
+    {
+        printf("Failed to read %s\n", dat.soundName.c_str());
+        return -1;
+    }
+    soundPlayer.Start();
+ 
     while (getBet) {
         
         FsPollDevice();
@@ -233,9 +239,11 @@ int BlackJack::playBlackJack(MainData& dat, int money)
             switch (winner) {
             case 1:
                 dat.setMoney(2 * bet);
+                soundPlayer.PlayOneShot(wav);
                 break;
             case 2:
                 dat.setMoney(3 * bet);
+                soundPlayer.PlayOneShot(wav);
                 break;
             case 3:
                 dat.setMoney(1 * bet);
@@ -275,7 +283,7 @@ int BlackJack::playBlackJack(MainData& dat, int money)
             int b = rand() % 256;
             if (winner == 3) {
                 glColor3ub(0, 0, 255);
-                glRasterPos2d(150, 750);
+                glRasterPos2d(350, 750);
                 YsGlDrawFontBitmap16x20("It's a  tie.");
             }
             else if (winner == 2) {
@@ -303,6 +311,7 @@ int BlackJack::playBlackJack(MainData& dat, int money)
         FsSwapBuffers();
         FsSleep(25);
     }
+    soundPlayer.End();
 }
 void BlackJack::DisplayOptions() const {
     
@@ -364,50 +373,60 @@ void Dealer::initCoordinates() {
     cards[1].setPos(430, 350);
 }
 void Dealer::setCoordinates() {
-    if (hand.getDeckSize() > 3) {
+    if (hand.getDeckSize() == 5) {
         std::vector<Card>& c = hand.getCards();
 
         c.back().setPosY(350); // same as others
-        c.back().setPosX(c[c.size() - 2].getPos()[0]); // set x as previous cards x
+        c.back().setPosX(c[c.size() - 2].getPos()[0] + 100); // set x as previous cards x
 
         for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
-            c[i].setPosX(c[i].getPos()[0] - 100); // move all previous cards by 100 towards left
+            c[i].setPosX(c[i].getPos()[0] - 50); // move all previous cards by 100 towards left
         }
     }
-    if (hand.getDeckSize() == 3) {
-        std::vector<Card>& c = hand.getCards();
+    else if (hand.getDeckSize() == 4) {
+         std::vector<Card>& c = hand.getCards();
 
-        c.back().setPosY(350); // same as others
-        c.back().setPosX(c[c.size() - 2].getPos()[0] + 70); // set x as previous cards x
+         c.back().setPosY(350); // same as others
+         c.back().setPosX(c[c.size() - 2].getPos()[0] + 100); // set x as previous cards x
 
-        for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
-            c[i].setPosX(c[i].getPos()[0] - 30); // move all previous cards by 100 towards left
-        }
+         for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
+             c[i].setPosX(c[i].getPos()[0] - 50); // move all previous cards by 100 towards left
+         }
+    }
+    else if (hand.getDeckSize() == 3) {
+         std::vector<Card>& c = hand.getCards();
+
+         c.back().setPosY(350); // same as others
+         c.back().setPosX(c[c.size() - 2].getPos()[0] + 50); // set x as previous cards x
+
+         for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
+             c[i].setPosX(c[i].getPos()[0] - 100); // move all previous cards by 100 towards left
+         }
     }
 }
 void Dealer::drawOne(const MainData& dat) {
     
-    Render(dat, hand.getCards()[0].getPos()[0], hand.getCards()[0].getPos()[1], hand.getCards()[0].getGraphicsIndex());
-    Render(dat, hand.getCards()[1].getPos()[0], hand.getCards()[1].getPos()[1], 0);
+    Render(dat, hand.getCards()[0].getPos()[0], hand.getCards()[0].getPos()[1], hand.getCards()[0].getGraphicsIndex(), 1.4);
+    Render(dat, hand.getCards()[1].getPos()[0], hand.getCards()[1].getPos()[1], 0, 1.4);
 
 }
 void Dealer::drawTwo(const MainData& dat) {
 
     for (int i = 0; i < hand.getDeckSize(); ++i) {
-        Render(dat, hand.getCards()[i].getPos()[0], hand.getCards()[i].getPos()[1], hand.getCards()[i].getGraphicsIndex());
+        Render(dat, hand.getCards()[i].getPos()[0], hand.getCards()[i].getPos()[1], hand.getCards()[i].getGraphicsIndex(), 1.4);
     }
     showSum();
 }
 void Dealer::showSum() const {
-    glColor3ub(0, 0, 0);
-    glRasterPos2d(300, 200);
+    glColor3ub(255, 255, 255);
+    glRasterPos2d(260, 200);
     YsGlDrawFontBitmap16x24("Dealer total: ");
 
     auto f = std::to_string(sum);
     const char* sumChar = f.c_str();
 
-    glRasterPos2d(500, 200);
-    YsGlDrawFontBitmap16x20(sumChar);
+    glRasterPos2d(490, 200);
+    YsGlDrawFontBitmap16x24(sumChar);
 }
 
 
@@ -486,46 +505,56 @@ void Player::initCoordinates() {
 void Player::drawHand(const MainData& dat) {
 
     std::vector<Card> c = hand.getCards();
-
+    double scale = 1.4;
     for (int i = 0; i < hand.getDeckSize(); ++i) {
-        Render(dat, c[i].getPos()[0], c[i].getPos()[1], c[i].getGraphicsIndex());
+        Render(dat, c[i].getPos()[0], c[i].getPos()[1], c[i].getGraphicsIndex(), scale);
     }
     
     showSum();
 }
 void Player::showSum() const {
-    glColor3ub(255, 0, 0);
-    glRasterPos2d(300, 550);
-    YsGlDrawFontBitmap16x24("Player total: ");
+    glColor3ub(255, 255, 255);
+    glRasterPos2d(270, 550);
+    YsGlDrawFontBitmap20x28("Player Total: ");
 
     auto f = std::to_string(sum);
     const char* sumChar = f.c_str();
     
-    glRasterPos2d(500, 550);
-    YsGlDrawFontBitmap16x20(sumChar);
+    glRasterPos2d(530, 550);
+    YsGlDrawFontBitmap20x28(sumChar);
 }
 void Player::setCoordinates()
 {
     // init coords are 250, 350 in X and 500 in Y
-    if (hand.getDeckSize() > 3) {
+    if (hand.getDeckSize() == 5) {
         std::vector<Card>& c = hand.getCards();
 
         c.back().setPosY(500); // same as others
-        c.back().setPosX(c[c.size() - 2].getPos()[0]); // set x as previous cards x
+        c.back().setPosX(c[c.size() - 2].getPos()[0] + 50); // set x as previous cards x
 
         for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
             c[i].setPosX(c[i].getPos()[0] - 100); // move all previous cards by 100 towards left
         }
     }
+    else if (hand.getDeckSize() == 4) {
+         std::vector<Card>& c = hand.getCards();
+
+         c.back().setPosY(500); // same as others
+         c.back().setPosX(c[c.size() - 2].getPos()[0] + 100); // set x as previous cards x
+
+         for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
+             c[i].setPosX(c[i].getPos()[0] - 50); // move all previous cards by 100 towards left
+         }
+    }
     else if (hand.getDeckSize() == 3) {
-        std::vector<Card>& c = hand.getCards();
+         std::vector<Card>& c = hand.getCards();
 
-        c.back().setPosY(500); // same as others
-        c.back().setPosX(c[c.size() - 2].getPos()[0] + 70); // set x as previous cards x      
+         c.back().setPosY(500); // same as others
+         c.back().setPosX(c[c.size() - 2].getPos()[0] + 100); // set x as previous cards x      
 
-        for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
-            c[i].setPosX(c[i].getPos()[0] - 30); // move all previous cards by 100 towards left
+         for (int i = 0; i < hand.getDeckSize() - 1; ++i) {
+             c[i].setPosX(c[i].getPos()[0] - 50); // move all previous cards by 100 towards left
 
-        }
+         }
     }
 }

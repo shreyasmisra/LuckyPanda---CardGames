@@ -188,6 +188,6 @@ void TextInput::Draw(void) const
 	}
 
 	glColor3ub(255, 0, 0);
-	glRasterPos2i(370, 700);
+	glRasterPos2i(370, 750);
 	YsGlDrawFontBitmap20x28(tmp.GetPointer());
 }

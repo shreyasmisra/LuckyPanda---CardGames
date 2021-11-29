@@ -14,18 +14,22 @@ MainData::MainData() {
 	nPics = 0;
 	png = nullptr;
 	texId = nullptr;
+	rendered = nullptr;
 }
 MainData::MainData(const int num) {
 	nPics = num;
 	png = new YsRawPngDecoder[num];
 	texId = new GLuint[num];
+	rendered = new bool[num];
 }
 void MainData::CleanUp() {
 	if (png != nullptr || texId != nullptr) {
 		delete[] png;
 		delete[] texId;
+		delete[] rendered;
 		png = nullptr;
 		texId = nullptr;
+		rendered = nullptr;
 	}
 }
 MainData::~MainData() {
@@ -55,6 +59,10 @@ void MainData::Create(const int x)
 	nPics = x;
 	png = new YsRawPngDecoder[nPics];
 	texId = new GLuint[nPics];
+	rendered = new bool[nPics];
+	for (int i = 0; i < nPics; ++i) {
+		rendered[i] = false;
+	}
 }
 void MainData::DecodeImages() {
 
@@ -133,6 +141,11 @@ void MainData::DecodeImages() {
 	getPNGPointer()[53].Decode("png1.png");
 	getPNGPointer()[54].Decode("welcome.png");
 	getPNGPointer()[55].Decode("sevenup.png");
+
+	getPNGPointer()[56].Decode("blackjack.png");
+	getPNGPointer()[57].Decode("solitaire.png");
+	getPNGPointer()[58].Decode("poker.png");
+	getPNGPointer()[59].Decode("seven_up.png");
 	
 
 	for (int i = 0; i < getNumPics(); ++i) {
@@ -171,26 +184,27 @@ std::string MainData::getMoneyChar() const {
 void Render(const MainData& dat, const double x, const double y, const int index) {
 
 	// Main function to display each card at given position
+	if (dat.rendered[index] == false) {
+		dat.rendered[index] = true;
+		glGenTextures(1, &dat.getTexPointer()[index]);
+		glBindTexture(GL_TEXTURE_2D, dat.getTexPointer()[index]);
 
-	glGenTextures(1, &dat.getTexPointer()[index]);
-	glBindTexture(GL_TEXTURE_2D, dat.getTexPointer()[index]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glTexImage2D
-	(GL_TEXTURE_2D,
-		0,
-		GL_RGBA,
-		dat.getPNGPointer()[index].wid,
-		dat.getPNGPointer()[index].hei,
-		0,
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		dat.getPNGPointer()[index].rgba);
-
+		glTexImage2D
+		(GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			dat.getPNGPointer()[index].wid,
+			dat.getPNGPointer()[index].hei,
+			0,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			dat.getPNGPointer()[index].rgba);
+	}
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glColor4d(1.0, 1.0, 1.0, 1.0);
 
@@ -198,7 +212,6 @@ void Render(const MainData& dat, const double x, const double y, const int index
 	glBindTexture(GL_TEXTURE_2D, dat.getTexPointer()[index]);
 
 	// To scale and translate images use this code below -- 
-
 	double scale = 1.;
 	int xSize = dat.getPNGPointer()[index].wid * scale;
 	int ySize = dat.getPNGPointer()[index].hei * scale;
@@ -214,16 +227,56 @@ void Render(const MainData& dat, const double x, const double y, const int index
 	glVertex2d(x, y - ySize);
 	glEnd();
 
-	/*glBegin(GL_QUADS);
+	glDisable(GL_TEXTURE_2D);
+}
+
+void Render(const MainData& dat, const double x, const double y, const int index, double scale) {
+
+	// overlaoded function -- with scale as parameter
+	// Main function to display each card at given position
+
+	if (dat.rendered[index] == false) {
+		dat.rendered[index] = true;
+		glGenTextures(1, &dat.getTexPointer()[index]);
+		glBindTexture(GL_TEXTURE_2D, dat.getTexPointer()[index]);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexImage2D
+		(GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			dat.getPNGPointer()[index].wid,
+			dat.getPNGPointer()[index].hei,
+			0,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			dat.getPNGPointer()[index].rgba);
+	}
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glColor4d(1.0, 1.0, 1.0, 1.0);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, dat.getTexPointer()[index]);
+
+	// To scale and translate images use this code below -- 
+
+	int xSize = dat.getPNGPointer()[index].wid * scale;
+	int ySize = dat.getPNGPointer()[index].hei * scale;
+
+	glBegin(GL_QUADS);
 	glTexCoord2d(0.0, 0.0);
 	glVertex2d(x, y);
 	glTexCoord2d(1.0, 0.0);
-	glVertex2d(x + dat.getPNGPointer()[index].wid, y);
+	glVertex2d(x + xSize, y);
 	glTexCoord2d(1.0, 1.0);
-	glVertex2d(x + dat.getPNGPointer()[index].wid, y - dat.getPNGPointer()[index].hei);
+	glVertex2d(x + xSize, y - ySize);
 	glTexCoord2d(0.0, 1.0);
-	glVertex2d(x, y - dat.getPNGPointer()[index].hei);
-	glEnd();*/
+	glVertex2d(x, y - ySize);
+	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
 }
@@ -232,7 +285,7 @@ void ColorBackGround()
 {
 	// Green background. will be replaced with image later
 
-	glColor3ub(0, 90, 0);
+	glColor3ub(0, 0, 0);
 	glBegin(GL_QUADS);
 	glVertex2i(0, 0);
 	glVertex2i(800, 0);
@@ -242,37 +295,15 @@ void ColorBackGround()
 	glFlush();
 }
 
-void PrintCardSolitaire(const MainData& dat, const Card c, double cx1, double cy1)
+void PrintCardSolitaire(const MainData& dat, const Card c, double cx1, double cy1, int f)
 {
-	Render(dat, cx1, cy1 + 100, getIndexForGraphics(c));
-
-	auto r = std::to_string(c.getRank());
-
-	char const* rchar = r.c_str();
-
-	glColor3ub(255, 100, 100);
-	glRasterPos2i(cx1, cy1);
-	YsGlDrawFontBitmap10x14(rchar);
-	glRasterPos2i(cx1, cy1 + 20);
-	if (c.getSuit() == 0)
+	if (f == 0)
 	{
-		char const* schar = "Clubs";
-		YsGlDrawFontBitmap10x14(schar);
+		Render(dat, cx1, cy1 + 100, 0);
 	}
-	else if (c.getSuit() == 1)
+	else
 	{
-		char const* schar = "Diamonds";
-		YsGlDrawFontBitmap10x14(schar);
-	}
-	else if (c.getSuit() == 2)
-	{
-		char const* schar = "Hearts";
-		YsGlDrawFontBitmap10x14(schar);
-	}
-	else if (c.getSuit() == 3)
-	{
-		char const* schar = "Spades";
-		YsGlDrawFontBitmap10x14(schar);
+		Render(dat, cx1, cy1 + 100, getIndexForGraphics(c));
 	}
 }
 
@@ -296,19 +327,19 @@ int getIndexForGraphics(const Card card)
 void DisplayGames() {
 	glColor3ub(255, 0, 0);
 
-	glRasterPos2d(20, 200);
-	YsGlDrawFontBitmap16x20("Choose the game you want to play -- ");
+	//glRasterPos2d(20, 200);
+	//YsGlDrawFontBitmap16x20("Choose the game you want to play -- ");
 
-	glRasterPos2d(20, 230);
+	glRasterPos2d(75, 420);
 	YsGlDrawFontBitmap16x20("1: BlackJack");
 
-	glRasterPos2d(20, 260);
+	glRasterPos2d(510, 420);
 	YsGlDrawFontBitmap16x20("2: Poker");
 
-	glRasterPos2d(20, 290);
+	glRasterPos2d(75, 730);
 	YsGlDrawFontBitmap16x20("3: Solitaire");
 
-	glRasterPos2d(20, 320);
+	glRasterPos2d(470, 730);
 	YsGlDrawFontBitmap16x20("4: Seven Up");
 }
 
