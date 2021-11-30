@@ -25,9 +25,10 @@ public:
 
 	Deck solitaireDeck;
 	Pile s1, s2, s3, s4, st, t1u, t2u, t3u, t4u, t5u, t6u, t7u, t2d, t3d, t4d, t5d, t6d, t7d, dis;
+	int turn = 0;
 
 	void MakeSolitarePiles(void);
-	void MoveCardsAndFlip(Pile &source, Pile &destination, int num_cards);
+	void MoveCardsAndFlip(Pile& source, Pile& destination, int num_cards);
 	bool checkSourceCardsValidity(Pile source, int num_cards);
 	bool checkDestinationValiditySuits(Card card1, Card card2);
 	bool checkDestinationValidityTable(Card card1, Card card2);
@@ -36,7 +37,7 @@ public:
 	void DrawCard(void);
 	bool CheckWin(void);
 	void DrawGame(const MainData&);
-	void PlaySolitaire(const MainData&);
+	int PlaySolitaire(const MainData&);
 	~Solitaire() {
 
 	}
