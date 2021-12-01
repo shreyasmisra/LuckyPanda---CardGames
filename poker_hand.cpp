@@ -22,7 +22,7 @@ void playertag(int pbet, int cpubet, int pbalance) {
 	char const* cpubetc = s2.c_str();
 	string s3 = to_string(pbalance);
 	char const* pbalancec = s3.c_str();
-	ColorBackGround();
+	ColorGameBackGround();
 	glColor3f(0, 0, 0);
 	glRasterPos2i(50, 50);
 	YsGlDrawFontBitmap16x20("Player1: CPU");

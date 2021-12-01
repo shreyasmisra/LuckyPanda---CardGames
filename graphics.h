@@ -52,7 +52,9 @@ public:
 
 void Render(const MainData& dat, const double x, const double y, const int index); // main render function
 void Render(const MainData& dat, const double x, const double y, const int index, double scale); // overloaded function with scale
-void ColorBackGround(); // Green color for now
+void ColorBackGround(); 
+void ColorGreenBackGround();
+void ColorGameBackGround();
 void PrintCardSolitaire(const MainData& dat, const Card, double, double, int);
 int getIndexForGraphics(const Card);
 void DisplayGames();

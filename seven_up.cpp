@@ -1,7 +1,10 @@
-#include "seven_up.h"
 #include <string>
 #include <chrono>
 
+#include "seven_up.h"
+#include "yssimplesound.h"
+#include "fssimplewindow.h"
+#include "ysglfontdata.h"
 //Member functions for 7up class
 
 SevenUp::SevenUp()
@@ -36,31 +39,34 @@ int SevenUp::CheckMatch()
 {
 	if (set == userResponse && set == 3)
 	{
-		return 7;
-		//money_left = total_money + 3 * bet;
-		//std::cout << "\nGood guess!! You won " << 3 * bet << " dollars.\n You have "<< money_left<< " money left.\n";
+		return 7; //lucky 7
 		
 	}
 	else if (set == userResponse)
 	{
-		//money_left = total_money + 2 * bet;
-		//std::cout << "\nGood guess! You won  " << 2 * bet << " dollars.\n You have " << money_left << " money left.\n";
-		return 8;
+		return 8; //correct guess
 	}
 	else
 	{
-		//money_left = total_money - bet;
-		//std::cout << "\nSorry! Wrong guess. You lost " << bet << " dollars.\n You have " << money_left << " money left.\n";
-		return 9;
+		return 9; //wrong guess
 	}
 }
 
-void SevenUp::DispOnScreen()
+void SevenUp::DisplaySevenUpBackground(const MainData& dat) const
 {
-	ColorBackGround();
+	Render(dat, 0, 700, 55);
+}
+
+void SevenUp::DispOnScreen(const MainData& dat) const
+{
+	ColorGreenBackGround();
+	DisplaySevenUpBackground(dat);
 	glColor3ub(0, 0, 0);
 	glRasterPos2d(300, 300);
-	YsGlDrawFontBitmap16x20("Dealer");
+	YsGlDrawFontBitmap20x28("Dealer");
+	glColor3ub(0, 0, 0);
+	glRasterPos2d(550, 80);
+	YsGlDrawFontBitmap32x48("SevenUp");
 }
 
 int SevenUp::PlaySevenUp(MainData& dat, int money) //Main game
@@ -71,13 +77,21 @@ int SevenUp::PlaySevenUp(MainData& dat, int money) //Main game
 	std::chrono::time_point<std::chrono::system_clock> start, end;
 	std::chrono::duration<double> elapsed_seconds;
 	
+	YsSoundPlayer soundPlayer;
+	YsSoundPlayer::SoundData wav;
+	if (YSOK != wav.LoadWav(dat.soundName.c_str()))
+	{
+		printf("Failed to read %s\n", dat.soundName.c_str());
+		return -1;
+	}
+	soundPlayer.Start();
+
 	while (playGame)
 	{
 		FsPollDevice();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		DispOnScreen();
-		
+		DispOnScreen(dat);
 		
 		auto key = FsInkey();
 		if (FSKEY_ESC == key)
@@ -88,21 +102,20 @@ int SevenUp::PlaySevenUp(MainData& dat, int money) //Main game
 		{
 			DisplayMoneyAndName(dat);
 			Render(dat, 450, 300, 0);
-			Render(dat, 0, 700, 55);
 
 			if (userResponse == 0)
 			{
-				glColor3ub(255, 0, 0);
-				glRasterPos2d(500, 500);
+				glColor3ub(0, 0, 0);
+				glRasterPos2d(550, 500);
 				YsGlDrawFontBitmap16x20("Choose number : \n  ");
 
-				glRasterPos2d(500, 550);
+				glRasterPos2d(550, 550);
 				YsGlDrawFontBitmap16x20("1 -- 7up \n");
 
-				glRasterPos2d(500, 600);
+				glRasterPos2d(550, 600);
 				YsGlDrawFontBitmap16x20("2 -- 7down \n");
 
-				glRasterPos2d(500, 650);
+				glRasterPos2d(550, 650);
 				YsGlDrawFontBitmap16x20("3 -- 7  \n");
 
 				if (FSKEY_1 == key) 
@@ -129,8 +142,10 @@ int SevenUp::PlaySevenUp(MainData& dat, int money) //Main game
 			{
 				if (getbet)
 				{
-					glRasterPos2d(100, 450);
-					YsGlDrawFontBitmap16x24("Choose bet amount: $\n");
+
+					glColor3ub(0, 0, 0);
+					glRasterPos2d(150, 750);
+					YsGlDrawFontBitmap20x28("Choose bet amount: $\n");
 					if (FSKEY_UP == key && bet != dat.getMoney())
 					{
 						bet += 50;
@@ -146,9 +161,9 @@ int SevenUp::PlaySevenUp(MainData& dat, int money) //Main game
 						dat.setMoney(-bet);
 						getbet = false;
 					}
-					glColor3ub(255, 255, 255);
-					glRasterPos2d(470, 450);
-					YsGlDrawFontBitmap16x24(b.c_str());
+					glColor3ub(0, 0, 0);
+					glRasterPos2d(550, 750);
+					YsGlDrawFontBitmap20x28(b.c_str());
 				}
 				
 				else if (!getbet)
@@ -164,33 +179,28 @@ int SevenUp::PlaySevenUp(MainData& dat, int money) //Main game
 		else if (dealerturn)
 		{
 			DisplayMoneyAndName(dat);
-			Render(dat, 0, 700, 55);
 			set = ClassifySet();
 			Render(dat, 450, 350, dealercard.getGraphicsIndex());
 			out = CheckMatch();
-			if (out == 7)
+			if (out == 8)
 			{
 				if (updateMoney) {
 					dat.setMoney(2 * bet);
 					updateMoney = false;
+					soundPlayer.PlayOneShot(wav);
 				}
 
-				// Put this code below (showing the money won or lost) in a function and call it instead of writing the same thing thrice. 
-				// pass the bet as a parameter.
-				// Figure out how to show the words "won" and "lost" in the same function at different calls
-				// Call this function after showing EndGameOptions also maybe? Looks better
+				glColor3ub(rand() % 255, rand() % 255, rand() % 255);
+				glRasterPos2d(150, 730);
+				YsGlDrawFontBitmap16x24("Good Guess! You got it right!");
 
-				glColor3ub(0, 0, 0);
-				glRasterPos2d(150, 350);
-				YsGlDrawFontBitmap12x16("Good Guess! You got it right!");
-
-				glRasterPos2d(150, 370);
-				YsGlDrawFontBitmap12x16("You win $");
+				/*glRasterPos2d(150, 370);
+				YsGlDrawFontBitmap20x28("You win $");*/
 
 				auto winnings = std::to_string(bet * 2);
 
-				glRasterPos2d(320, 370);
-				YsGlDrawFontBitmap12x16(winnings.c_str());
+				/*glRasterPos2d(320, 370);
+				YsGlDrawFontBitmap20x28(winnings.c_str());*/
 			}
 
 			else if (out == 9)
@@ -200,47 +210,48 @@ int SevenUp::PlaySevenUp(MainData& dat, int money) //Main game
 					updateMoney = false;
 				}
 				glColor3ub(0, 0, 0);
-				glRasterPos2d(150, 350);
-				YsGlDrawFontBitmap12x16("You got it wrong :(");
+				glRasterPos2d(150, 730);
+				YsGlDrawFontBitmap16x24("You got it wrong. You lose:(");
 
-				glRasterPos2d(150, 370);
-				YsGlDrawFontBitmap12x16("You lost $");
+				/*glRasterPos2d(150, 370);
+				YsGlDrawFontBitmap20x28("You lost $");*/
 
 				auto winnings = std::to_string(bet * 1);
 
-				glRasterPos2d(320, 370);
-				YsGlDrawFontBitmap12x16(winnings.c_str());
+				/*glRasterPos2d(320, 370);
+				YsGlDrawFontBitmap20x28(winnings.c_str());*/
 			}
 
-			else if (out == 8)
+			else if (out == 7)
 			{
 				if (updateMoney) {
 					dat.setMoney(3 * bet);
 					updateMoney = false;
+					soundPlayer.PlayOneShot(wav);
 				}
-				glColor3ub(0, 0, 0);
-				glRasterPos2d(150, 350);
-				YsGlDrawFontBitmap12x16("Lucky 7! You Win!");
+				glColor3ub(rand() % 255, rand() % 255, rand() % 255);
+				glRasterPos2d(150, 730);
+				YsGlDrawFontBitmap16x24("Lucky 7! You Win!");
 
-				glRasterPos2d(320, 370);
-				YsGlDrawFontBitmap12x16("You win $");
+				/*glRasterPos2d(320, 370);
+				YsGlDrawFontBitmap20x28("You win $");*/
 
 				auto winnings = std::to_string(bet * 3);
 
-				glRasterPos2d(220, 370);
-				YsGlDrawFontBitmap12x16(winnings.c_str());
+				/*glRasterPos2d(220, 370);
+				YsGlDrawFontBitmap20x28(winnings.c_str());*/
 			}
 
 			auto end = std::chrono::system_clock::now();
 			elapsed_seconds = end - start;
-			if (elapsed_seconds.count() > 5) {
+			if (elapsed_seconds.count() > 5) 
+			{
 				dealerturn = false;
 			}
 		}
 
 		else if (!playerturn && !dealerturn)
 		{
-			Render(dat, 0, 700, 55);
 			DisplayMoneyAndName(dat);
 			Render(dat, 450, 350, dealercard.getGraphicsIndex());
 			EndGameOptions();
@@ -262,4 +273,5 @@ int SevenUp::PlaySevenUp(MainData& dat, int money) //Main game
 		FsSwapBuffers();
 		FsSleep(10);
 	}
+	soundPlayer.End();
 }
