@@ -11,6 +11,7 @@
 
 
 MainData::MainData() {
+	money = 0;
 	nPics = 0;
 	png = nullptr;
 	texId = nullptr;
@@ -283,9 +284,32 @@ void Render(const MainData& dat, const double x, const double y, const int index
 
 void ColorBackGround()
 {
-	// Green background. will be replaced with image later
-
 	glColor3ub(0, 0, 0);
+	glBegin(GL_QUADS);
+	glVertex2i(0, 0);
+	glVertex2i(800, 0);
+	glVertex2i(800, 800);
+	glVertex2i(0, 800);
+	glEnd();
+	glFlush();
+}
+
+void ColorGreenBackGround()
+{
+	glColor3ub(0, 90, 0);
+	glBegin(GL_QUADS);
+	glVertex2i(0, 0);
+	glVertex2i(800, 0);
+	glVertex2i(800, 800);
+	glVertex2i(0, 800);
+	glEnd();
+	glFlush();
+}
+
+void ColorGameBackGround()
+{
+	// Green background. will be replaced with image later
+	glColor3ub(0, 90, 0);
 	glBegin(GL_QUADS);
 	glVertex2i(0, 0);
 	glVertex2i(800, 0);

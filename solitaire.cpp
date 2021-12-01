@@ -131,7 +131,7 @@ void Solitaire::MakeSolitarePiles(void)
 
 void Solitaire::DrawGame(const MainData& dat)
 {
-    ColorBackGround();
+    ColorGameBackGround();
     s1.PrintPile(dat);
     s2.PrintPile(dat);
     s3.PrintPile(dat);

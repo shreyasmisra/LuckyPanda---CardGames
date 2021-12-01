@@ -28,9 +28,15 @@ public:
 	int PlaySevenUp(MainData&, int money);
 	int ClassifySet();
 	int CheckMatch();
-	void DispOnScreen();
+	void DisplaySevenUpBackground(const MainData&) const;
+	void DispOnScreen(const MainData&) const;
+	//void DispText();
+	//int CountBet();
 	SevenUp();
 
 };
+
+
+
 
 #endif

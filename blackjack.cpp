@@ -187,7 +187,7 @@ int BlackJack::playBlackJack(MainData& dat, int money)
         
         DisplayMoneyAndName(dat);
         
-        glColor3ub(255, 0, 0);
+        glColor3ub(0, 0, 0);
         glRasterPos2d(500, 80);
         YsGlDrawFontBitmap32x48("BlackJack");
 
@@ -258,7 +258,7 @@ int BlackJack::playBlackJack(MainData& dat, int money)
         
         // Rendering functions
 
-        ColorBackGround();
+        ColorGameBackGround();
         DisplayBlackJackBackground(dat);
 
         DisplayMoneyAndName(dat);
@@ -315,13 +315,13 @@ int BlackJack::playBlackJack(MainData& dat, int money)
 }
 void BlackJack::DisplayOptions() const {
     
-    glColor3ub(255, 0, 0);
+    glColor3ub(0, 0, 0);
     glRasterPos2d(20, 730);
     YsGlDrawFontBitmap16x20("Player's turn. Options --\n");
-    glColor3ub(255, 0, 0);
+    glColor3ub(0, 0, 0);
     glRasterPos2d(20, 760);
     YsGlDrawFontBitmap16x20("S: To Stand\n");
-    glColor3ub(255, 0, 0);
+    glColor3ub(0, 0, 0);
     glRasterPos2d(20, 790);
     YsGlDrawFontBitmap16x20("H: To Hit\n");
 }
